@@ -4,7 +4,15 @@
 
 
 
-[TOC]
+  * [📚 Theory](#---theory)
+  * [🔫 PoC](#---poc)
+    + [💥 Simple eviction](#---simple-eviction)
+    + [🎯 Evict a specific Pod](#---evict-a-specific-pod)
+    + [👨🏽‍🦯 Blind DoS](#--------blind-dos)
+  * [Limits](#limits)
+  * [🛡 Protection & Mitigation](#---protection---mitigation)
+  * [📖 Cheat Sheet](#---cheat-sheet)
+  * [👀Additional Resources](#--additional-resources)
 
 The aim is to demonstate how we could perform the Denial-of-Service on another pod in the same kubernetes cluster using `PodPriority`. By DoS we mean:
 
@@ -13,7 +21,10 @@ The aim is to demonstate how we could perform the Denial-of-Service on another p
 
 It is mainly harmful in a multi-tenant cluster. A tenant can use this mechanism to perform a DoS on other tenant applications or even on "administration" pods
 
-## 🧾Resource Quota
+## 📚 Theory
+*➲ Let's go back to school..*
+
+### Resource Quota
 
 When several users or teams share a cluster with a fixed number of nodes, there is a concern that one team could use more than its fair share of resources ***~>*** **Resource Quotas**: limit aggregate resource consumption per namespace: quantity of objects + compute resources that may be consumed
 
@@ -43,26 +54,26 @@ When several users or teams share a cluster with a fixed number of nodes, there 
 
 **Request *vs* Limit:**  A request is the amount of resource garuanteed by Kubernetes for the container. Conversaly, a limit for a resource is the maximum amount of a resource that Kubernetes will allow to the container use
 
-### Recommanded use
+#### Recommanded use
 
 * 1 ns per team
 * Admin creates 1 ResourQuota for each ns
 * Users create resources (pods, services, etc.) in the namespace, and the quota system tracks usage to ensure it does not exceed hard resource limits defined in a ResourceQuota.
 
-## 🛑 Pod Priority and Preemption
+### Pod Priority and Preemption
 
 **Pod priority**: If a Pod cannot be scheduled, the scheduler tries to preempt (evict) lower priority Pods to make scheduling of the pending Pod possible.
 
 When a pod with priority is in pending mode, the scheduler searches node with lower priority pod and if the eviciton of this pod make the higher priority pod scheduling possible  ⇒ Lower pod evicted + higher pod scheduled. 
 
-### How to use `PodPriority`?
+#### How to use `PodPriority`?
 
 1. Add one or more [PriorityClasses](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass).
 2. Create Pods with[`priorityClassName`](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority) 
 
 That's all! Note that all previous created pods are set with the default Priority (which is `0`)
 
-### Test eviction and schedule blocking
+#### Test eviction and schedule blocking
 
 | Property                                                     |
 | :----------------------------------------------------------- |
@@ -93,7 +104,9 @@ That's all! Note that all previous created pods are set with the default Priorit
 
 
 ## 🔫 PoC
+*➲ Here we are!*
 
+### 💥 Simple eviction
 To preempt pod you must have 1 pod pending with higher priority that already scheduled pods. We will put our cluster in **Out-Of-Resource state using `cpu`oversupply**
 
 Use your cluster or create one with 4 nodes and cpu limit at `4`:
@@ -169,7 +182,7 @@ minikube start --cpus 4 --nodes 4
 
    
 
-### Evict a specific Pod
+### 🎯 Evict a specific Pod
 
 (see [limits](#limits) to have more details)
 
@@ -179,7 +192,7 @@ minikube start --cpus 4 --nodes 4
   * In a more sophisticated attack, you could use anti-affinity to deploy higher-prority pods on all nodes where the target pods isn't deployed (to block future rescheduling). Then, evict target pods using node affinity / pod anti afinity to deploy malicious pod
 * Deploy  the malicious pod on the same node than the target pod , if you already know on which node the target pod is running
 
-
+### 👨🏽‍🦯 Blind DoS
 
 ## Limits
 
