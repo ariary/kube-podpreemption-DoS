@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: target
+  labels:
+    target: me
+spec:
+  containers:
+  - name: no-priority
+    image: nginxdemos/hello
+    resources:
+      requests:
+        cpu: 1
+        memory: 128Mi
+      limits:
+        cpu: 1
+        memory: 128Mi
