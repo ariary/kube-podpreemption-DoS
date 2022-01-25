@@ -209,7 +209,7 @@ The set-up process in nearly the same as the one of the blind DoS section.
 
 Now we have a cluster with stuffed nodes. We want to evict `target` pod of another tenant within another namespace. We have succeed to obtain specific labels of the target pod. We are going to use them with `podAntiffinity`. We will instruct kubernetes to schedule our higher-priority pod on a node where the `target` pod is not.
 
-As all the node are stuffed and can't schedule the higher-priority pod  without reaching a cpu Out-Of-Resource the anti-affinity can't be respected. The `podAntiAffinity` will then force the scheduling of the higher pod where the target pod is, triggering its eviction.
+As all the node are stuffed and can't schedule the higher-priority pod  without reaching a cpu Out-Of-Resource the anti-affinity can't be respected. The `podAntiAffinity` will then force the scheduling of the higher-priority pod where the target pod is, triggering its eviction.
 
 1. Create the high-priority pod: `kubectl apply -f target/pod-high.yml`
 
