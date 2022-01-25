@@ -77,9 +77,9 @@ That's all! Note that all previous created pods are set with the default Priorit
 
 | Property                                                     |
 | :----------------------------------------------------------- |
-| It supports **eviction decisions based on incompressible resources**.<br>Eviction doesn’t happen if pressure is on compressible resources, e.g., CPU. fake |
+| It supports **eviction decisions based on incompressible resources**.<br>Eviction doesn’t happen if pressure is on compressible resources, e.g., CPU.|
 
-**Notes:** This property only apply to kubelet eviction. CPU resource can indeeend be used to perform Out-Of-Resource cluster state and thus launching eviction process for higher pod creation.
+**Notes:** This property only apply to kubelet eviction. CPU resource can actually be used to perform Out-Of-Resource cluster state and thus launching eviction process for higher-priority pod creation.
 
 | Property                                                     |
 | :----------------------------------------------------------- |
@@ -108,7 +108,7 @@ That's all! Note that all previous created pods are set with the default Priorit
 
 ### 💥 Simple eviction
 
-To preempt pod you must have 1 pod pending with higher priority that already scheduled pods. We will put our cluster in **Out-Of-Resource state using `cpu`oversupply**
+We will put our cluster in **Out-Of-Resource state using `cpu`oversupply**
 
 Use your cluster or create one with 3 nodes and cpu limit at `4`:
 
@@ -116,13 +116,13 @@ Use your cluster or create one with 3 nodes and cpu limit at `4`:
 minikube start --cpus 4 --nodes 4
 ```
 
-  In fact, `--cpus 2`seems to be useless. It is the value of `capacity.cpu` find with `kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.capacity.cpu}{"\n"}{end}'` that has importance (here `4`)
+  In fact, `--cpus 4` seems to be useless. It is the value of `capacity.cpu` find with `kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.capacity.cpu}{"\n"}{end}'` that has importance (here `4`)
 
 1. Create low-priority pods (ie pods without priorityClass  ⇒ priority `0`).With a daemonSet to be sure to have one on each node: `kubectl apply -f simple/ds-no-pod-priority.yml`
 
    At this point, you must have 3 pods running, 1 on each nodes. Each nodes uses ~3 cpu.
 
-2. Create pod with high priority:`kubectl apply -f simple/pod-high.yml`. The key is it musts have `cpu` requests & limits so that:
+2. Create pod with high priority:`kubectl apply -f simple/pod-high.yml`. The key is it musts have `cpu` requests so that:
    * Total cpu requested of all pods is greater than the total amount of cpu available for each nodes ⇒ exhaust the supply of CPU
    * cpu request is not greater than maximum node cpu ⇒ Making the pod scheduling possible (if lower-priority pod is evicted)
 
@@ -131,14 +131,14 @@ See that this will evict a low-priority pod (`Pending` status) and start `high-p
    
 ### 👨🏽‍🦯 Blind DoS
 
-In a multi-tenant cluster, you have probably not have access to:
+In a multi-tenant cluster, you probably not have access to:
 * cpu limit
 * information about other pods running in another namespace
 * etc ...
 
 To be able to determine which amount of cpu request will trigger an eviction you have to fumble around to get an idea of the cluster state. Indeed, be able to run a high-priority pod does not guarantee us if another pod on another namespace has been evicted or not.
 
-So, the goal is to trigger an out-of-bound resource with lower pod to estimate the amount to request. It lay on the assumption that the cluster is relartively stable (not many pod creation/deletion happen in a minute).
+So, the goal is to trigger an out-of-bound resource with lower pod to estimate the amount to request. It lays on the assumption that the cluster is relatively stable (not many pod creation/deletion happen in a minute).
 
 #### Set-up
 
