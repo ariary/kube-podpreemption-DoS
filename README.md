@@ -162,7 +162,7 @@ As the tenant, we could only deploy pod in our namespace `bad-tenant`.
    * `kubectl -n bad-tenant scale deployment/estimate  --replicas=2`
    * `kubectl -n bad-tenant scale deployment/estimate  --replicas=3`, and so on...
 
-3. When you we reach `7` replicas, we observe that the new pod is `Pending` ⇒ We have stuffed our cluster and it is likely out of cpu resource (check with `kubectl describe pod [pending_estimate_pod] -n bad-tenant`). Hence, if we create the same deployment with high-priority it will evict some pods on other ns.
+3. When we reach `7` replicas, we observe that the new pod is `Pending` ⇒ We have stuffed our cluster and it is likely out of cpu resource (check with `kubectl describe pod [pending_estimate_pod] -n bad-tenant`). Hence, if we create the same deployment with high-priority it will evict some pods on other ns.
 
    * delete your low-priority deployment: `kubectl delete -f blind/deployment-estimate-no-priority.yml`
    * create the high-priority deployment & scale it to have 7 replicas: `kubectl apply -f blind/deployment-high.yml && kubectl -n bad-tenant scale deployment/high-priority-evictor  --replicas=7`
@@ -171,7 +171,7 @@ See that you actually have evicted a pod on `default` namespace!
 
 ##### Alternative
 
-To easily see on which node the eviction occurs, you can set the replicas to `6` and create an higher-priority pod: the eviction occurs on the same node as this pod.
+To easily see on which node the eviction occurs, you can set the replicas to `6` and create an higher-priority pod: the eviction occurs on the same node of this pod.
 
 `kubectl apply -f blind/deployment-high.yml && kubectl -n bad-tenant scale deployment/high-priority-evictor  --replicas=6 && kubectl apply -f blind/pod-high.yml`
 
@@ -190,7 +190,7 @@ To easily see on which node the eviction occurs, you can set the replicas to `6`
 
 #### Set-up
 
-For the PoC we deploy a pod on the `default` namespace of a 3-nodes cluster. Then we create a malicious higher-priority pod in another namespace that will trigger the eviction of this specific pod.
+For the PoC we will create pods on the `default` namespace of a 3-nodes cluster (including our target). Then we create a malicious higher-priority pod in another namespace that will trigger the eviction of this specific pod.
 
 The set-up process in nearly the same as the one of the blind DoS section.
 
