@@ -1,18 +1,7 @@
 
 
-# K8s - Pod Denial-of-Service using Pod Priority preemption
+# Pod Denial-of-Service using Pod Priority preemption
 
-
-
-  * [📚 Theory](#---theory)
-  * [🔫 PoC](#---poc)
-    + [💥 Simple eviction](#---simple-eviction)
-    + [🎯 Evict a specific Pod](#---evict-a-specific-pod)
-    + [👨🏽‍🦯 Blind DoS](#--------blind-dos)
-  * [Limits](#limits)
-  * [🛡 Protection & Mitigation](#---protection---mitigation)
-  * [📖 Cheat Sheet](#---cheat-sheet)
-  * [👀Additional Resources](#--additional-resources)
 
 The aim is to demonstate how we could perform the Denial-of-Service on another pod in the same kubernetes cluster using `PodPriority`. By DoS we mean:
 
@@ -29,7 +18,7 @@ It is mainly harmful in a multi-tenant cluster. A tenant can use this mechanism 
 When several users or teams share a cluster with a fixed number of nodes, there is a concern that one team could use more than its fair share of resources ***~>*** **Resource Quotas**: limit aggregate resource consumption per namespace: quantity of objects + compute resources that may be consumed
 
 | Property                                                     |
-| ------------------------------------------------------------ |
+| :------------------------------------------------------------ |
 | Resource Quota does not applied to already created resources |
 
 * **Object Count Quota**: restrict the number of any namespaced resource. example: restrict pod number to 2:
@@ -49,7 +38,7 @@ When several users or teams share a cluster with a fixed number of nodes, there 
 
 
 | Property                                                     |
-| ------------------------------------------------------------ |
+| :------------------------------------------------------------ |
 | If quota is enabled in a  namespace for compute resources like cpu and memory, users must specify  requests or limits for those values |
 
 **Request *vs* Limit:**  A request is the amount of resource garuanteed by Kubernetes for the container. Conversaly, a limit for a resource is the maximum amount of a resource that Kubernetes will allow to the container use
@@ -77,13 +66,13 @@ That's all! Note that all previous created pods are set with the default Priorit
 
 | Property                                                     |
 | :----------------------------------------------------------- |
-| It supports **eviction decisions based on incompressible resources**.<br />Eviction doesn’t happen if pressure is on compressible resources, e.g., CPU. fake |
+| It supports **eviction decisions based on incompressible resources**.<br>Eviction doesn’t happen if pressure is on compressible resources, e.g., CPU. fake |
 
 **Notes:** This property only apply to kubelet eviction. CPU resource can indeeend be used to perform Out-Of-Resource cluster state and thus launching eviction process for higher pod creation.
 
 | Property                                                     |
 | :----------------------------------------------------------- |
-| **In the case of memory pressure: **<br />* Pods are sorted first based on whether  their memory usage exceeds their request or not, then by pod priority,  and then by consumption of memory relative to memory requests<br />* Pods that don’t exceed memory requests are not evicted. A lower priority pod that doesn’t exceed memory requests will not be evicted |
+| **In the case of memory pressure:** <br><ul> <li>Pods are sorted first based on whether  their memory usage exceeds their request or not, then by pod priority,  and then by consumption of memory relative to memory requests</li><li> Pods that don’t exceed memory requests are not evicted. A lower priority pod that doesn’t exceed memory requests will not be evicted </li></ul>|
 
 ***(❓) Could we evict already running pod by creating pod with higher priority ?***
 
@@ -115,7 +104,7 @@ Use your cluster or create one with 4 nodes and cpu limit at `4`:
 minikube start --cpus 4 --nodes 4
 ```
 
-  In fact, `--cpus 2`seems to be useless. It is the value of capacity.cpu find with `kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.capacity.cpu}{"\n"}{end}'` that has importance (here `4`)
+In fact, `--cpus 2`seems to be useless. It is the value of capacity.cpu find with `kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.capacity.cpu}{"\n"}{end}'` that has importance (here `4`)
 
 1. Create low-priority pods or pods without priorityClass ( ⇒ priority `0`).
 
@@ -231,14 +220,42 @@ To easily see on which node the eviction occurs, you can set the replicas to `6`
 
 ### 🎯 Evict a specific Pod
 
-(see [limits](#limits) to have more details)
+***(❓) How we can proceed?***
 
-***How we can proceed?***
-
-* Deploy malicious pod with inter-pod affinity if you know the target pod label values.
-  * In a more sophisticated attack, you could use anti-affinity to deploy higher-prority pods on all nodes where the target pods isn't deployed (to block future rescheduling). Then, evict target pods using node affinity / pod anti afinity to deploy malicious pod
 * Deploy  the malicious pod on the same node than the target pod , if you already know on which node the target pod is running
 
+* Deploy malicious pod with inter-pod anti-affinity if you know the target pod label values.
+
+* In a more sophisticated attack, you could use anti-affinity to deploy higher-prority pods on all nodes where the target pods isn't deployed (to block future rescheduling). Then, evict target pods using node affinity / pod anti afinity to deploy malicious pod
+
+  
+
+#### Set-up
+
+For the PoC we deploy a pod on the `default` namespace of a 3-nodes cluster. Then we create a malicious higher-priority pod in another namespace that will trigger the eviction of this specific pod.
+
+The set-up process in nearly the same as the one of the blind DoS section.
+
+1. create the cluster, populate `default` ns, create priorityClass, create `bad-tenant`namespace:
+   * `minikube start --cpus 4 --nodes 3`
+   * `kubectl create ns bad-tenant`
+   * `kubectl apply -f priorityClass-high.yml`
+   * `kubectl -f ds/ds-no-pod-priority.yml`
+2. Create the target pod (no priorityClass + specific label): `kubectl apply -f target/target-pod.yml`
+3. Determine the number of higher-priority pods to create to stuff nodes (see [Blind DoS](#-Blind-DoS)). Create consequently deployment of higher-priority pods with the adequat `replica` value: `kubectl apply -f target/deployment-high.yml && kubectl -n bad-tenant scale deployment/deployment-high-priority  --replicas=5`
+4. Watch pods on both namespaces:
+   * `watch -n 0.1 -d kubectl get pods -o wide`
+   * `watch -n 0.1 -d kubectl get pods -o wide -n bad-tenant`
+
+#### Attack
+
+Now we have a cluster with stuffed nodes. We want to evict `target` pod of another tenant within another namespace. We have succeed to obtain specific labels of the target pod. We are going to use them with `podAntiffinity`. We will instruct kubernetes to schedule our higher-priority pod on a node where the `target` pod is not.
+
+As all the node are stuffed and can't schedule the higher-priority pod  without reaching a cpu Out-Of-Resource the anti-affinity can't be respected. The `podAntiAffinity` will then force the scheduling of the higher pod where the target pod is, triggering its eviction.
+
+1. Create the high-priority pod: `kubectl apply -f target/pod-high.yml`
+
+(see [limits](#limits) to have more details)
 
 ## Limits
 
@@ -273,28 +290,15 @@ To easily see on which node the eviction occurs, you can set the replicas to `6`
 * Get pod priority classes: `kubectl get PriorityClass`
 * `cpu`usage
   * stats on container cpu usage (%): `docker stats [container_name]`
-  * docker cpu limit: (in container) `cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us`divided by `cat /sys/fs/cgroup/cpu/cpu.cfs_period_us` give us the limit number of cpu alloxated for the container
+  * docker cpu limit: (in container) `cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us`divided by `cat /sys/fs/cgroup/cpu/cpu.cfs_period_us` give us the limit number of cpu allocated for the container
   * `kubectl describe nodes [node_name]`
   * watch pod changement in namespace: `watch -d -n 0.1 kubectl get pods -o wide`
 
 ## 👀Additional Resources
 
-- [Resource Quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/)
-- [Pod priority preemption](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority)
-
+* [Resource Quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/)
+* [Pod priority preemption](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority)
 * https://kubernetes.io/docs/concepts/scheduling-eviction/_print/#pods-are-preempted-but-the-preemptor-is-not-scheduled
-* https://docs.openshift.com/container-platform/4.7/nodes/pods/nodes-pods-priority.html
+* https://github.com/kubernetes/design-proposals-archive/blob/main/scheduling/pod-preemption.md#preemption-order
 * https://blog.wescale.fr/2019/01/29/k8s-preemption-et-priorites-de-pods/
-* ~~https://dzone.com/articles/please-dont-evict-my-pod-priority-amp-disruption-b~~
-  * https://grafana.com/blog/2019/07/24/how-a-production-outage-was-caused-using-kubernetes-pod-priorities/
 * https://medium.com/container-talks/ultimate-guide-of-pod-eviction-on-kubernetes-588d7f6de8dd
-* https://github.com/rajatjindal/kubectl-evict-pod
-
-
-
-## 🖋TO DO
-
-- [x] All affinity
-- [ ] Pod qui détermine cpu limit à ecrire
-- [ ] Malicious pod qui target un pod spécifique
-- [ ] Check: 1 master no deployment, PoC on worker Pour bien vérifié que c'est bien les ressource d'un noeud pas du cluster
