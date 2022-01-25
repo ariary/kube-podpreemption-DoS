@@ -1,13 +1,12 @@
-<div align=center>
-<h1>Pod Denial-of-Service using Pod Priority preemption</h1>
-The aim is to demonstate how we could perform the Denial-of-Service on another pod in the same kubernetes cluster using <code>PodPriority</code>.
-<br>
- By DoS we mean:
-  <strong>Pod eviction, if the target pod is already running </strong>and<strong> Block pod rescheduling</strong>
-<br>
+# Pod Denial-of-Service using Pod Priority preemption
+
+The aim is to demonstate how we could perform the Denial-of-Service on another pod in the same kubernetes cluster using `PodPriority`.
+
+By DoS we mean:
+**Pod eviction, if the target pod is already running** and **Block pod rescheduling**
+
 It is mainly harmful in a multi-tenant cluster. A tenant can use this mechanism to perform a DoS on other tenant applications or even on "administration" pods
-<br></br><br>
-</div>
+
 
 - [📚 Theory](#-theory)
 - [🔫 PoC](#-poc)
@@ -18,6 +17,8 @@ It is mainly harmful in a multi-tenant cluster. A tenant can use this mechanism 
 - [🛡 Protection & Mitigation](#-protection--mitigation)
 - [📖 Cheat Sheet](#-cheat-sheet)
 - [👀 Additional Resources](#-additional-resources)
+
+
 
 ## 📚 Theory
 *➲ Let's go back to school..*
