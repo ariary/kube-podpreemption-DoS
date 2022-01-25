@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: estimate
+  namespace: bad-tenant
+spec:
+  selector:
+    matchLabels:
+      app: estimate
+  template:
+    metadata:
+      labels:
+        app: estimate
+    spec:
+      containers:
+      - name: estimate
+        image: nginxdemos/hello
+        resources:
+          requests:
+            cpu: 1
+            memory: 128Mi
+          limits:
+            cpu: 1
+            memory: 128Mi
