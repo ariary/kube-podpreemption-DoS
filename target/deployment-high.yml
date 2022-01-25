@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-high-priority
+  namespace: bad-tenant
+spec:
+  selector:
+    matchLabels:
+      app: deployment-high-priority
+  template:
+    metadata:
+      labels:
+        app: deployment-high-priority
+    spec:
+      containers:
+      - name: high-priority
+        image: nginxdemos/hello
+        resources:
+          requests:
+            cpu: 1
+            memory: 128Mi
+          limits:
+            cpu: 1
+            memory: 128Mi
+      priorityClassName: high-priority
