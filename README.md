@@ -1,6 +1,6 @@
 # Pod Denial-of-Service using Pod Priority preemption
 
-The aim is to demonstate how we could perform the Denial-of-Service on another pod in the same kubernetes cluster using `PodPriority`.
+The aim is to demonstate how we could perform the Denial-of-Service of another pod in the same kubernetes cluster using `PodPriority`.
 
 By DoS we mean:
 **Pod eviction, if the target pod is already running** and **Block pod rescheduling**
