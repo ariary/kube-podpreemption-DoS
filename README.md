@@ -307,7 +307,7 @@ As all the node are stuffed and can't schedule the higher-priority pod  without 
 
 * [Resource Quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/)
 * [Pod priority preemption](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority)
-* https://kubernetes.io/docs/concepts/scheduling-eviction/_print/#pods-are-preempted-but-the-preemptor-is-not-scheduled
-* https://github.com/kubernetes/design-proposals-archive/blob/main/scheduling/pod-preemption.md#preemption-order
-* https://blog.wescale.fr/2019/01/29/k8s-preemption-et-priorites-de-pods/
-* https://medium.com/container-talks/ultimate-guide-of-pod-eviction-on-kubernetes-588d7f6de8dd
+* [Kubernetes - Pods are prempted but the preemptor is not scheduled](https://kubernetes.io/docs/concepts/scheduling-eviction/_print/#pods-are-preempted-but-the-preemptor-is-not-scheduled)
+* [Preemption order](https://github.com/kubernetes/design-proposals-archive/blob/main/scheduling/pod-preemption.md#preemption-order)
+* [Article on Pod Priority](https://blog.wescale.fr/2019/01/29/k8s-preemption-et-priorites-de-pods/)
+* [Article on Pod Priority & Pod eviction](https://medium.com/container-talks/ultimate-guide-of-pod-eviction-on-kubernetes-588d7f6de8dd)
