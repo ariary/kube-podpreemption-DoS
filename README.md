@@ -284,3 +284,8 @@ python3 --replicas $(python3 estimate-cpu-supply.py) evict.py
 * [Preemption order](https://github.com/kubernetes/design-proposals-archive/blob/main/scheduling/pod-preemption.md#preemption-order)
 * [Article on Pod Priority](https://blog.wescale.fr/2019/01/29/k8s-preemption-et-priorites-de-pods/)
 * [Article on Pod Priority & Pod eviction](https://medium.com/container-talks/ultimate-guide-of-pod-eviction-on-kubernetes-588d7f6de8dd)
+
+## To Do
+
+* Determine if the eviction happen if the whole cluster is out of resource or if the cluster is out of resource for the attacker authorized part 
+* try with other resource than cpu
