@@ -119,12 +119,11 @@ minikube start --cpus 4 --nodes 4
 
 1. Create low-priority pods (ie pods without priorityClass  ⇒ priority `0`).With a daemonSet to be sure to have one on each node: `kubectl apply -f simple/ds-no-pod-priority.yml`
 
-   At this point, you must have3 pods running, 1 on each nodes. Each nodes uses ~3 cpu.
+   At this point, you must have 3 pods running, 1 on each nodes. Each nodes uses ~3 cpu.
 
 2. Create pod with high priority:`kubectl apply -f simple/pod-high.yml`. The key is it musts have `cpu` requests & limits so that:
    * Total cpu requested of all pods is greater than the total amount of cpu available for each nodes ⇒ exhaust the supply of CPU
    * cpu request is not greater than maximum node cpu ⇒ Making the pod scheduling possible (if lower-priority pod is evicted)
-
 
 See that this will evict a low-priority pod (`Pending` status) and start `high-priority`pod.
 
@@ -138,7 +137,7 @@ In a multi-tenant cluster, you have probably not have access to:
 
 To be able to determine which amount of cpu request will trigger an eviction you have to fumble around to get an idea of the cluster state. Indeed, be able to run a high-priority pod does not guarantee us if another pod on another namespace has been evicted or not.
 
-So, the goal is to trigger an out-of-bound resource with lower pod to estimate the amount to request. It lay on the assumption that the cluster is relartively stable (not many pod creation/deletion happen in a minute)
+So, the goal is to trigger an out-of-bound resource with lower pod to estimate the amount to request. It lay on the assumption that the cluster is relartively stable (not many pod creation/deletion happen in a minute).
 
 #### Set-up
 
@@ -174,7 +173,6 @@ See that you actually have evicted a pod on `default` namespace!
 To easily see on which node the eviction occurs, you can set the replicas to `6` and create an higher-priority pod: the eviction occurs on the same node as this pod.
 
 `kubectl apply -f blind/deployment-high.yml && kubectl -n bad-tenant scale deployment/high-priority-evictor  --replicas=6 && kubectl apply -f blind/pod-high.yml`
-
 
 
 ### 🎯 Evict a specific Pod
@@ -215,6 +213,30 @@ As all the node are stuffed and can't schedule the higher-priority pod  without 
 1. Create the high-priority pod: `kubectl apply -f target/pod-high.yml`
 
 (see [limits](#limits) to have more details)
+
+
+### Automate a bit
+before running all scripts:
+```
+pip install kubernetes
+pip install pytz
+```
+
+To find **how many replica you need to create to stuff the cluster** and thus being near a Cluster Out-of-Cpu state:
+```shell
+python3 -n bad-tenant --cpu 1 --increment 1 --replicas 2 --timeout 10 estimate-cpu-supply.py
+```
+It will output the number of replica needed for this purpose.
+
+Now we want to **perform eviction**: stuff cluster + create evictor/preemptor-pod:
+```shell
+python3 -n bad-tenant --cpu 1 --replicas 5 evict.py
+```
+
+And if you like one-liner:
+```shell
+python3 --replicas $(python3 estimate-cpu-supply.py) evict.py
+```
 
 ## 🚧 Limits
 
