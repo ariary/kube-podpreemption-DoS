@@ -2,6 +2,15 @@
 
 # Pod Denial-of-Service using Pod Priority preemption
 
+- [📚 Theory](#-theory)
+- [🔫 PoC](#-poc)
+  - [💥 Simple eviction](#-simple-eviction)
+  - [👨🏽‍🦯 Blind DoS](#-blind-dos)
+  - [🎯 Evict a specific Pod](#-evict-a-specific-pod)
+- [Limits](#limits)
+- [🛡 Protection & Mitigation](#-protection--mitigation)
+- [📖 Cheat Sheet](#-cheat-sheet)
+- [👀 Additional Resources](#-additional-resources)
 
 The aim is to demonstate how we could perform the Denial-of-Service on another pod in the same kubernetes cluster using `PodPriority`. By DoS we mean:
 
@@ -294,7 +303,7 @@ As all the node are stuffed and can't schedule the higher-priority pod  without 
   * `kubectl describe nodes [node_name]`
   * watch pod changement in namespace: `watch -d -n 0.1 kubectl get pods -o wide`
 
-## 👀Additional Resources
+## 👀 Additional Resources
 
 * [Resource Quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/)
 * [Pod priority preemption](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority)
