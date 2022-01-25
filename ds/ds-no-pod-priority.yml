@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ds-no-priority
+spec:
+  selector:
+    matchLabels:
+      run: ds-no-priority
+  template:
+    metadata:
+      labels:
+        run: ds-no-priority
+    spec:
+      containers:
+        - name: somecontainer
+          image: nginxdemos/hello
+          resources:
+            requests:
+              cpu: 1
+              memory: "128Mi"
+            limits:
+              cpu: 1
+              memory: "128Mi"
