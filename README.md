@@ -1,5 +1,3 @@
-
-
 # Pod Denial-of-Service using Pod Priority preemption
 
 - [📚 Theory](#-theory)
@@ -7,7 +5,7 @@
   - [💥 Simple eviction](#-simple-eviction)
   - [👨🏽‍🦯 Blind DoS](#-blind-dos)
   - [🎯 Evict a specific Pod](#-evict-a-specific-pod)
-- [Limits](#limits)
+- [🚧 Limits](#-limits)
 - [🛡 Protection & Mitigation](#-protection--mitigation)
 - [📖 Cheat Sheet](#-cheat-sheet)
 - [👀 Additional Resources](#-additional-resources)
@@ -266,7 +264,7 @@ As all the node are stuffed and can't schedule the higher-priority pod  without 
 
 (see [limits](#limits) to have more details)
 
-## Limits
+## 🚧 Limits
 
 * If you reach the `ResourceQuota` you could not create the malicious pod (it won't be place in pending mode, so not in scheduling queue). So  the attack is not doable.
 * In the case of memory pressure, **pods are sorted first based on whether  their memory usage exceeds their request or not**, then by pod priority,  and then by consumption of memory relative to memory requests
