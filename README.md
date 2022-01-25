@@ -223,7 +223,7 @@ pip install kubernetes
 pip install pytz
 ```
 
-To find **how many replica you need to create to stuff the cluster** and thus being near a Cluster Out-of-Cpu state:
+To find **how many replicas you need to create to stuff the cluster** and thus being near a Cluster Out-of-Cpu state:
 ```shell
 python3 -n bad-tenant --cpu 1 --increment 1 --replicas 2 --timeout 10 estimate-cpu-supply.py
 ```
@@ -243,12 +243,12 @@ python3 --replicas $(python3 estimate-cpu-supply.py) evict.py
 
 * If you reach the `ResourceQuota` you could not create the malicious pod (it won't be place in pending mode, so not in scheduling queue). So  the attack is not doable.
 * In the case of memory pressure, **pods are sorted first based on whether  their memory usage exceeds their request or not**, then by pod priority,  and then by consumption of memory relative to memory requests
-* If you want to deploy a deployment of malicious  pods. If all the pods can't be scheduled, an `OutofCpu` status is set and no lower-priority pods are evicted.
 * You can't specify a `pod.spec.nodeName` in your malicious pod to evict pod of a specific node. It will be scheduled on node with status `OutOfcpu`. (It seems that it Doesn't pass by the kubelet scheduler  so it won't evict lower-priority pods)
   * use of  `pod.spec.nodeSelector` performs lower-priority pods eviction
   * use of  `pod.spec.affinity.nodeAffinity` performs lower-priority pods eviction
   * use of `pod.spec.affinity.podAffinity` does not perform pods evicition. Malicious pod is pending.
   * use of  `pod.spec.affinity.podAntiAffinity` performs lower-priority pods eviction. (Condition: cpu supply close to be exhausted and match target pod labels with `antiPodAffinity` and `preferredDuringSchedulingIgnoredDuringExecution` + no other pod must have this label. Curiously it will schedule the malicious pod on the same node as the pod specified by antiAffinity)
+* ***(To check again)*** If you want to deploy a deployment of malicious  pods. If all the pods can't be scheduled, an `OutofCpu` status is set and no lower-priority pods are evicted.
 
 
 
