@@ -13,6 +13,7 @@ It is mainly harmful in a multi-tenant cluster. A tenant can use this mechanism 
   - [💥 Simple eviction](#-simple-eviction)
   - [👨🏽‍🦯 Blind DoS](#-blind-dos)
   - [🎯 Evict a specific Pod](#-evict-a-specific-pod)
+  - [Automate a bit](#automate-a-bit)
 - [🚧 Limits](#-limits)
 - [🛡 Protection & Mitigation](#-protection--mitigation)
 - [📖 Cheat Sheet](#-cheat-sheet)
