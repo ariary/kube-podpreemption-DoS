@@ -105,78 +105,27 @@ That's all! Note that all previous created pods are set with the default Priorit
 *➲ Here we are!*
 
 ### 💥 Simple eviction
+
 To preempt pod you must have 1 pod pending with higher priority that already scheduled pods. We will put our cluster in **Out-Of-Resource state using `cpu`oversupply**
 
-Use your cluster or create one with 4 nodes and cpu limit at `4`:
+Use your cluster or create one with 3 nodes and cpu limit at `4`:
 
 ```shell
 minikube start --cpus 4 --nodes 4
 ```
 
-In fact, `--cpus 2`seems to be useless. It is the value of capacity.cpu find with `kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.capacity.cpu}{"\n"}{end}'` that has importance (here `4`)
+  In fact, `--cpus 2`seems to be useless. It is the value of `capacity.cpu` find with `kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.capacity.cpu}{"\n"}{end}'` that has importance (here `4`)
 
-1. Create low-priority pods or pods without priorityClass ( ⇒ priority `0`).
+1. Create low-priority pods (ie pods without priorityClass  ⇒ priority `0`).With a daemonSet to be sure to have one on each node: `kubectl apply -f simple/ds-no-pod-priority.yml`
 
-   With a daemonSet to be sure to have one on each node:
+   At this point, you must have3 pods running, 1 on each nodes. Each nodes uses ~3 cpu.
 
-   ```yaml
-   apiVersion: apps/v1
-   kind: DaemonSet
-   metadata:
-     name: ds-no-priority
-   spec:
-     selector:
-       matchLabels:
-         run: ds-no-priority
-     template:
-       metadata:
-         labels:
-           run: ds-no-priority
-       spec:
-         containers:
-           - name: somecontainer
-             image: nginxdemos/hello
-             resources:
-               requests:
-                 cpu: 1
-                 memory: "128Mi"
-               limits:
-                 cpu: 1
-                 memory: "128Mi"
-   ```
-
-   Make this thrice (change ds name and so on). 
-
-   At this point, you must have 12 pods running, 3 on each nodes. Each nodes uses ~3 cpu.
-
-2. Create pod with high priority. The key is it musts have `cpu` requests & limits so that:
-
+2. Create pod with high priority:`kubectl apply -f simple/pod-high.yml`. The key is it musts have `cpu` requests & limits so that:
    * Total cpu requested of all pods is greater than the total amount of cpu available for each nodes ⇒ exhaust the supply of CPU
    * cpu request is not greater than maximum node cpu ⇒ Making the pod scheduling possible (if lower-priority pod is evicted)
 
-   pod-high.yml:
 
-   ```yaml
-   apiVersion: v1
-   kind: Pod
-   metadata:
-     name: high-priority
-   spec:
-     containers:
-     - name: high-priority
-       image: nginxdemos/hello
-       resources:
-         requests:
-           cpu: 1
-           memory: 128Mi
-         limits:
-           cpu: 1
-           memory: 128Mi
-   ```
-
-   
-
-   See that this will evict a low-priority pod (`Pending` status) and start `high-priority`pod.
+See that this will evict a low-priority pod (`Pending` status) and start `high-priority`pod.
 
    
 ### 👨🏽‍🦯 Blind DoS
