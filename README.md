@@ -6,7 +6,7 @@ The aim is to demonstate how we could perform the Denial-of-Service on another p
   <strong>Pod eviction, if the target pod is already running </strong>and<strong> Block pod rescheduling</strong>
 <br>
 It is mainly harmful in a multi-tenant cluster. A tenant can use this mechanism to perform a DoS on other tenant applications or even on "administration" pods
-<br>
+<br></br><br>
 </div>
 
 - [📚 Theory](#-theory)
