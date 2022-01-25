@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: high-priority-evictor
+  namespace: bad-tenant
+spec:
+  selector:
+    matchLabels:
+      app: high-priority-evictor
+  template:
+    metadata:
+      labels:
+        app: high-priority-evictor
+    spec:
+      containers:
+      - name: high-priority-evictor
+        image: nginxdemos/hello
+        resources:
+          requests:
+            cpu: 1
+            memory: 128Mi
+          limits:
+            cpu: 1
+            memory: 128Mi
+      priorityClassName: high-priority
