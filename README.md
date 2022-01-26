@@ -104,7 +104,12 @@ That's all! Note that all previous created pods are set with the default Priorit
 
 > No, we need to exhaust the supply of a specific node ([see](https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-resource/#specify-a-cpu-request-that-is-too-big-for-your-nodes)), **BUT** if the cluster resource supply isn't exhausted and you don't specify the node you want to exhaust, the malicious Pod will be scheduled on a node with adequat supply w/o evicting any pod.
 
+***(❓) Does the Preemption occur if the cluster is out of resource ONLY FOR the "evictor pod authorized scheluding zone"?*** 
 
+> *For example*, if an attacker can't deploy pod on control-plane nodes ("evictor pod authorized scheluding zone" = data-plane nodes). Data-plane nodes don't have any sufficient resource to schedule the evictor pod **BUT** control-plane nodes have. Does the cluster will evict pods or not to schedule the evictor pod ?
+>
+> Yes!
+> This imply that an attacker can **voluntary restrict its "evictor pod authorized scheluding zone" to ease preemption triggering**. (However, preempted pods would be rescheduled out of the "evictor pod authorized scheluding zone" if they have the right)
 
 ## 🔫 PoC
 *➲ Here we are!*
