@@ -13,7 +13,7 @@ It is mainly harmful in a multi-tenant cluster. A malicious tenant can use this 
   - [💥 Simple eviction](#-simple-eviction)
   - [👨🏽‍🦯 Blind DoS](#-blind-dos)
   - [🎯 Evict a specific Pod](#-evict-a-specific-pod)
-  - [Automate a bit](#automate-a-bit)
+  - [🧙‍♂️ Automate a bit](#-automate-a-bit)
 - [🚧 Limits](#-limits)
 - [🛡 Protection & Mitigation](#-protection--mitigation)
 - [📖 Cheat Sheet](#-cheat-sheet)
@@ -216,7 +216,7 @@ As all the node are stuffed and can't schedule the higher-priority pod  without 
 (see [limits](#limits) to have more details)
 
 
-### Automate a bit
+### 🧙‍♂️ Automate a bit
 before running all scripts:
 ```
 pip install kubernetes
