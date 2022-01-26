@@ -236,7 +236,7 @@ python3 -n bad-tenant --cpu 1 --replicas 5 evict.py
 
 And if you like one-liner:
 ```shell
-python3 --replicas $(python3 estimate-cpu-supply.py) evict.py
+python3 --replicas $(python3 estimate-cpu-supply.py 2>/dev/null) evict.py
 ```
 
 ## 🚧 Limits
