@@ -110,7 +110,7 @@ That's all! Note that all previous created pods are set with the default Priorit
 *➲ Here we are!*
 
 <div align=center>
-  <h3><a href=https://www.google.fr>>> Demo 🖥️ <<</a></h3>
+  <h3><a href="#-demo">>> Demo 🖥️ <<</a></h3>
 </div>
 
 ### 💥 Simple eviction
