@@ -8,7 +8,7 @@ By DoS we mean:
 It is mainly harmful in a multi-tenant cluster. A malicious tenant can use this mechanism to perform a DoS on other tenant applications or even on "administration" pods
 
 <div align=center>
-  <h3><a href="#-demo">>> Demo 🖥️ <<</a></h3>
+  <h3><a href="#%EF%B8%8F-demo">>> Demo 🖥️ <<</a></h3>
 </div>
 
 - [📚 Theory](#-theory)
@@ -110,7 +110,7 @@ That's all! Note that all previous created pods are set with the default Priorit
 *➲ Here we are!*
 
 <div align=center>
-  <h3><a href="#-demo">>> Demo 🖥️ <<</a></h3>
+  <h3><a href="#%EF%B8%8F-demo">>> Demo 🖥️ <<</a></h3>
 </div>
 
 ### 💥 Simple eviction
