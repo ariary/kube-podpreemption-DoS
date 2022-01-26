@@ -122,7 +122,7 @@ def all_running_pod(namespace,timeout):
                 return False
     return True
 
-def main(args):
+def estimate(args):
     config.load_kube_config()
     apps_v1 = client.AppsV1Api()
 
@@ -147,4 +147,4 @@ if __name__ == "__main__":
     parser.add_argument("-k","--no-deletion", help="disable deployment deletion when the script exits",action='store_true')
 
     args = parser.parse_args()
-    main(args)
+    estimate(args)
