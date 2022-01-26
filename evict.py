@@ -1,7 +1,6 @@
 import argparse
 import sys
 import time
-from importlib_metadata import metadata
 
 from kubernetes import client, config
 
