@@ -272,15 +272,16 @@ python3 evict.py --replicas $(python3 estimate-cpu-supply.py && sleep 10)
 
 ## 📖 Cheat Sheet
 
+* Watch `FailedScheduling` event to detect cpu starvation : `kubectl -n bad-tenant get events --sort-by='.metadata.creationTimestamp' -A --watch | grep FailedScheduling
 * Get clusters resources available: `kubectl top nodes` *(need  the right to list resource "nodes" in API group "metrics.k8s.io" at the cluster scope + metric-server deployed)*
   * enable metric-server w/ minikube: `minikube addons enable metrics-server`
   * otherwise use `kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.capacity.cpu}{"\n"}{end}'`
 * Get pod priority classes: `kubectl get PriorityClass`
-* `cpu`usage
+* `cpu` usage
   * stats on container cpu usage (%): `docker stats [container_name]`
   * docker cpu limit: (in container) `cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us`divided by `cat /sys/fs/cgroup/cpu/cpu.cfs_period_us` give us the limit number of cpu allocated for the container
   * `kubectl describe nodes [node_name]`
-  * watch pod changement in namespace: `watch -d -n 0.1 kubectl get pods -o wide`
+* Watch pod changement in namespace: `watch -d -n 0.1 -t kubectl get pods -o wide`
 
 ## 👀 Additional Resources
 
