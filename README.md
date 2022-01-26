@@ -8,7 +8,7 @@ By DoS we mean:
 It is mainly harmful in a multi-tenant cluster. A malicious tenant can use this mechanism to perform a DoS on other tenant applications or even on "administration" pods
 
 <div align=center>
-  <h3><a href=https://www.google.fr>>> Demo 🖥️ <<</a></h3>
+  <h3><a href="#-demo">>> Demo 🖥️ <<</a></h3>
 </div>
 
 - [📚 Theory](#-theory)
@@ -291,7 +291,7 @@ python3 evict.py --replicas $(python3 estimate-cpu-supply.py && sleep 10)
 * [Article on Pod Priority](https://blog.wescale.fr/2019/01/29/k8s-preemption-et-priorites-de-pods/)
 * [Article on Pod Priority & Pod eviction](https://medium.com/container-talks/ultimate-guide-of-pod-eviction-on-kubernetes-588d7f6de8dd)
 
-## Demo
+## 🖥️ Demo
 
 <div align=center>
   <img src="https://github.com/ariary/kube-podpreemption-DoS/blob/main/demo/eviction.gif">
