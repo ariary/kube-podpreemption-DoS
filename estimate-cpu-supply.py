@@ -112,8 +112,7 @@ def all_running_pod(namespace,timeout):
                 msg = pod.status.conditions[0].message
                 if "Insufficient cpu" in msg:
                     return False
-            elif:
-                pod.status.container_statuses: #Check if container is successfully created => if not wait and re-check Running status
+            elif pod.status.container_statuses: #Check if container is successfully created => if not wait and re-check Running status
                 if pod.status.container_statuses[0].state.waiting.reason == "ContainerCreating":
                     eprint("[INFO] Pod is pending due to ContainerCreating state, wait again")
                     time.sleep(timeout)
@@ -142,9 +141,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Estimate cpu to allocate to stuff nodes and generate Out-Of-Cpu event.')
     parser.add_argument('-n','--namespace',type=str,default="bad-tenant", help='namespace for the deployment')
     parser.add_argument('-r','--replicas',type=int,default=1,help='initial number of replica pods (must be > 0)')
-    parser.add_argument('-i','--increment',type=int,default=1,help='Increment replica number by this value at each step')
+    parser.add_argument('-i','--increment',type=int,default=1,help='increment replica number by this value at each step')
     parser.add_argument('--cpu',type=str,default="1",help='cpu requests/limits of each pods of the deployment')
-    parser.add_argument('-t','--timeout',type=int,default=7,help='Timeout to wait before asking Pod statuses at each step')
+    parser.add_argument('-t','--timeout',type=int,default=7,help='timeout to wait before asking Pod statuses at each step')
     parser.add_argument("-k","--no-deletion", help="disable deployment deletion when the script exits",action='store_true')
 
     args = parser.parse_args()
