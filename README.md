@@ -7,6 +7,9 @@ By DoS we mean:
 
 It is mainly harmful in a multi-tenant cluster. A malicious tenant can use this mechanism to perform a DoS on other tenant applications or even on "administration" pods
 
+<div align=center>
+  <h3><a href=https://www.google.fr>>> Demo 🖥️ <<</a></h3>
+</div>
 
 - [📚 Theory](#-theory)
 - [🔫 PoC](#-poc)
@@ -105,6 +108,10 @@ That's all! Note that all previous created pods are set with the default Priorit
 
 ## 🔫 PoC
 *➲ Here we are!*
+
+<div align=center>
+  <h3><a href=https://www.google.fr>>> Demo 🖥️ <<</a></h3>
+</div>
 
 ### 💥 Simple eviction
 
@@ -220,7 +227,6 @@ As all the node are stuffed and can't schedule the higher-priority pod  without 
 before running all scripts:
 ```
 pip install kubernetes
-pip install pytz
 ```
 
 To find **how many replicas you need to create to stuff the cluster** and thus being near a Cluster Out-of-Cpu state:
@@ -231,7 +237,7 @@ It will output the number of replica needed for this purpose.
 
 Now we want to **perform eviction**: stuff cluster + create evictor/preemptor-pod:
 ```shell
-python3 -n bad-tenant --cpu 1 --replicas 5 evict.py
+python3 evict.py -n bad-tenant --cpu 1 --replicas 5
 ```
 
 And if you like one-liner, **estimate how to stuff the cluster & evict right after**:
@@ -284,6 +290,13 @@ python3 evict.py --replicas $(python3 estimate-cpu-supply.py && sleep 10)
 * [Preemption order](https://github.com/kubernetes/design-proposals-archive/blob/main/scheduling/pod-preemption.md#preemption-order)
 * [Article on Pod Priority](https://blog.wescale.fr/2019/01/29/k8s-preemption-et-priorites-de-pods/)
 * [Article on Pod Priority & Pod eviction](https://medium.com/container-talks/ultimate-guide-of-pod-eviction-on-kubernetes-588d7f6de8dd)
+
+## Demo
+
+<div align=center>
+  <img src="https://github.com/ariary/kube-podpreemption-DoS/blob/main/demo/eviction.gif">
+</div>
+
 
 ## To Do
 
