@@ -216,7 +216,7 @@ As all the node are stuffed and can't schedule the higher-priority pod  without 
 (see [limits](#limits) to have more details)
 
 
-### 🧙‍♂️ Automate a bit
+### 🧙‍ Automate a bit
 before running all scripts:
 ```
 pip install kubernetes
