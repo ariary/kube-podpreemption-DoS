@@ -1,13 +1,11 @@
 import argparse
-import datetime
-import pytz
 import sys
 import time
-
 
 from kubernetes import client, config
 
 DEPLOYMENT_NAME = "deployment-estimate"
+IMAGE="nginxdemos/hello"
 
 
 def eprint(*args, **kwargs):
@@ -17,10 +15,11 @@ def create_deployment_object(cpu,start):
     # Configureate Pod template container
     container = client.V1Container(
         name="estimate",
-        image="nginxdemos/hello",
+        image=IMAGE,
+        image_pull_policy="IfNotPresent",
         resources=client.V1ResourceRequirements(
-            requests={"cpu": str(cpu), "memory": "128Mi"},
-            limits={"cpu": str(cpu), "memory": "128Mi"},
+            requests={"cpu": cpu, "memory": "128Mi"},
+            limits={"cpu": cpu, "memory": "128Mi"},
         ),
     )
 
@@ -65,21 +64,6 @@ def scale_deployment(api, deployment,new_replicas,namespace):
     )
 
 
-def restart_deployment(api, deployment,namespace):
-    # update `spec.template.metadata` section
-    # to add `kubectl.kubernetes.io/restartedAt` annotation
-    deployment.spec.template.metadata.annotations = {
-        "kubectl.kubernetes.io/restartedAt": datetime.datetime.utcnow()
-        .replace(tzinfo=pytz.UTC)
-        .isoformat()
-    }
-
-    # patch the deployment
-    resp = api.patch_namespaced_deployment(
-        name=DEPLOYMENT_NAME, namespace=namespace, body=deployment
-    )
-
-
 def delete_deployment(api,namespace):
     # Delete deployment
     resp = api.delete_namespaced_deployment(
@@ -101,20 +85,19 @@ def autostuff(api, deployment,namespace,start,increment,timeout):
     while(True):
         # get current replicas statuses
         time.sleep(timeout)
-        pending = not all_running_pod(namespace)
+        pending = not all_running_pod(namespace,timeout)
         if pending:
             break
         # Add replicas
         nreplicas += increment
         scale_deployment(api,deployment,nreplicas,namespace)
-        restart_deployment(api,deployment,namespace)
         eprint("[INFO] Scale deployment replicas: " + str(nreplicas))
 
     return nreplicas
         
 
 
-def all_running_pod(namespace):
+def all_running_pod(namespace,timeout):
     """
     Return true if all pods of the deployment are running.
     Conversely return false if one pod is pending
@@ -122,11 +105,22 @@ def all_running_pod(namespace):
     pod_list = client.CoreV1Api().list_namespaced_pod(namespace,label_selector='app=estimate')
     for pod in pod_list.items:
         if pod.status.phase != "Running":
-            eprint("[INFO] Pending Pod %s: {Status: %s, container status: %s}" % (pod.metadata.name, pod.status.phase, pod.status.container_statuses[0].state.waiting.reason))
-            eprint("[WARNING] Check that the pod is not running due to a Out-of-resource event")
-            # TODO: check outofCpu event
-            # TODO: before if pod.status.container_statuses[0].state.waiting.reason == "ContainerCreating" rewait et return all_running_pod(namespace)
-            return False
+            eprint("[INFO] Not running Pod %s: {Status: %s}" % (pod.metadata.name,pod.status.phase))
+            #container status: %s ....pod.status.container_statuses[0].state.waiting.reason)
+            # Check outofCpu event
+            if pod.status.conditions:
+                msg = pod.status.conditions[0].message
+                if "Insufficient cpu" in msg:
+                    return False
+            elif:
+                pod.status.container_statuses: #Check if container is successfully created => if not wait and re-check Running status
+                if pod.status.container_statuses[0].state.waiting.reason == "ContainerCreating":
+                    eprint("[INFO] Pod is pending due to ContainerCreating state, wait again")
+                    time.sleep(timeout)
+                    all_running_pod(namespace,timeout)
+            else:
+                eprint("[WARNING] Check that the pod that isn't running is pending due to a Out-of-resource event")
+                return False
     return True
 
 def main(args):
@@ -149,7 +143,7 @@ if __name__ == "__main__":
     parser.add_argument('-n','--namespace',type=str,default="bad-tenant", help='namespace for the deployment')
     parser.add_argument('-r','--replicas',type=int,default=1,help='initial number of replica pods (must be > 0)')
     parser.add_argument('-i','--increment',type=int,default=1,help='Increment replica number by this value at each step')
-    parser.add_argument('--cpu',type=int,default=1,help='cpu requests/limits of each pods of the deployment')
+    parser.add_argument('--cpu',type=str,default="1",help='cpu requests/limits of each pods of the deployment')
     parser.add_argument('-t','--timeout',type=int,default=7,help='Timeout to wait before asking Pod statuses at each step')
     parser.add_argument("-k","--no-deletion", help="disable deployment deletion when the script exits",action='store_true')
 
