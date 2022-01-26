@@ -96,6 +96,9 @@ def create_evictor_pod(api, pod,namespace):
 
     eprint("[INFO] evictor pod is created")
 
+    def clean_helper(namespace):
+    eprint("[INFO] To delete deployment: kubectl -n %s delete deployment %s" % (namespace,DEPLOYMENT_NAME))
+    eprint("[INFO] To delete evictor pod: kubectl -n %s delete pod %s" % (namespace,POD_NAME))
 
 def evict(args):
     config.load_kube_config()
@@ -111,6 +114,8 @@ def evict(args):
     evictor_pod = create_evictor_pod_object(args.cpu,args.priority)
 
     create_evictor_pod(core_v1, evictor_pod,args.namespace)
+    
+    clean_helper(args.namespace)
 
 
 if __name__ == "__main__":
