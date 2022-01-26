@@ -234,7 +234,7 @@ Now we want to **perform eviction**: stuff cluster + create evictor/preemptor-po
 python3 -n bad-tenant --cpu 1 --replicas 5 evict.py
 ```
 
-And if you like one-liner, estimate & evict right after**:
+And if you like one-liner, **estimate how to stuff the cluster & evict right after**:
 ```shell
 python3 evict.py --replicas $(python3 estimate-cpu-supply.py && sleep 10)
 ```
