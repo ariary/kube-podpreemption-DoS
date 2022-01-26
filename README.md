@@ -272,7 +272,7 @@ python3 evict.py --replicas $(python3 estimate-cpu-supply.py && sleep 10)
 
 ## 📖 Cheat Sheet
 
-* Watch `FailedScheduling` event to detect cpu starvation : `kubectl -n bad-tenant get events --sort-by='.metadata.creationTimestamp' -A --watch | grep FailedScheduling
+* Watch `FailedScheduling` event to detect cpu starvation : `kubectl -n bad-tenant get events --sort-by='.metadata.creationTimestamp' -A --watch | grep FailedScheduling`
 * Get clusters resources available: `kubectl top nodes` *(need  the right to list resource "nodes" in API group "metrics.k8s.io" at the cluster scope + metric-server deployed)*
   * enable metric-server w/ minikube: `minikube addons enable metrics-server`
   * otherwise use `kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.capacity.cpu}{"\n"}{end}'`
