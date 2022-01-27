@@ -111,6 +111,13 @@ That's all! Note that all previous created pods are set with the default Priorit
 > Yes!
 > This imply that an attacker can **voluntary restrict its "evictor pod authorized scheluding zone" to ease preemption triggering**. (However, preempted pods would be rescheduled out of the "evictor pod authorized scheluding zone" if they have the right)
 
+***(❓) Can we change `priorityClass` of pods?*** without having right to directly modify them
+
+> No ! You can't change `priorityClass` of running pods **BUT** you can change the priorityClass of future pods (with `globalDefault` field, priorityClass manipulation, etc...).
+>
+> In general, it is recommended not to grant any rights to users on `priorityClass` if they are not admin to not have priorityClass change for pods.
+
+
 ## 🔫 PoC
 *➲ Here we are!*
 
