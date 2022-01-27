@@ -5,7 +5,7 @@ The aim is to demonstate how we could perform the Denial-of-Service of another p
 By DoS we mean:
 **Pod eviction, if the target pod is already running** and **Block pod rescheduling**
 
-It is mainly harmful in a multi-tenant cluster. A malicious tenant can use this mechanism to perform a DoS on other tenant applications or even on "administration" pods
+It is mainly harmful in a multi-tenant cluster. A malicious tenant can use this mechanism to perform a DoS on other tenant applications or even on "administrative" pods
 
 <div align=center>
   <h3><a href="#%EF%B8%8F-demo">>> Demo 🖥️ <<</a></h3>
