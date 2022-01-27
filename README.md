@@ -222,7 +222,9 @@ For the PoC we will create a DaemonSet on the `default` namespace of a 5-nodes c
 Assuming our target is on node `minikube-m02`. Our aim is know to stuff this specific node. To do so:
 1. Schedule a pod (`scout`) on this node with a specific label (force sheduling with `pod.spec.nodeName`): `kubectl apply -f target/scout.yml`
 2. Create the deployment to stuff the node, to do so add `podAffinity` to your deployment's pod with the `scout` pod: `kubectl apply -f target/deployment-high-affinity.yml`
-3. Scale the deployment progressively till you evict a Pod on `default` ns: `kubectl -n bad-tenant scale deployment.apps/deployment-high-affinity  --replicas=3`, `kubectl -n bad-tenant scale deployment.apps/deployment-high-affinity  --replicas=3`, ...
+3. Scale the deployment progressively till you evict a Pod on `default` ns: `kubectl -n bad-tenant scale deployment.apps/deployment-high-affinity  --replicas=2`
+
+You have evicted the target pod on `minikube-m02`!
 
 *Notes:*
 * Why not using `nodeName` for the deployment instead of podaffinity? Cause when you specify `nodeName`, the scheduling process is not hte same and the preemption does not occur (`OutOfCpu` status for your higher-priority pods instead)
