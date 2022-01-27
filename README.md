@@ -226,7 +226,7 @@ Assuming our target is on node `minikube-m02`. Our aim is know to stuff this spe
 
 *Notes:*
 * Why not using `nodeName` for the deployment instead of podaffinity? Cause when you specify `nodeName`, the scheduling process is not hte same and the preemption does not occur (`OutOfCpu` status for your higher-priority pods instead)
-* In a more realistic scenario you wouldn't not see where the eviction happen. To see a  more realistic approach: [Blind PoC](#-blind-dos)
+* In a more realistic scenario you wouldn't see where the eviction happen. To see a  more realistic approach: [Blind PoC](#-blind-dos)
 
 
 #### Case 2 - Cluster stuffing and `AntiPodAffinity`
