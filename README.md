@@ -94,22 +94,19 @@ That's all! Note that all previous created pods are set with the default Priorit
 
 ***(❓) Could we block pod scheduling by running higher priority pod ?***
 
-> Yes ! With the same mechanism. If we have a running higher-priority pod that is just under a  specific resource limit use that would exhaust the resource supply, all lower-priority pods won't be scheduled till the resource supply is not sufficient [see](https://kubernetes.io/docs/concepts/scheduling-eviction/_print/#effect-of-pod-priority-on-scheduling-order) 
+> Yes ! With the same mechanism. If we have a running higher-priority pod that a specif resource supply is exhausted, all lower-priority pods won't be scheduled till the resource supply is not sufficient [see](https://kubernetes.io/docs/concepts/scheduling-eviction/_print/#effect-of-pod-priority-on-scheduling-order) 
 
 ***(❓) Is this attack is inter-namespace feasable ?***
 
-> Yes !
+> Yes ! Higher-priority pod can evict pod of another namespace
 
 ***(❓) To trigger Out-of-Resource state, we need to exhaust the resource supply of the cluster ?***
 
 > No, we need to exhaust the supply of a specific node ([see](https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-resource/#specify-a-cpu-request-that-is-too-big-for-your-nodes)), **BUT** if the cluster resource supply isn't exhausted and you don't specify the node you want to exhaust, the malicious Pod will be scheduled on a node with adequat supply w/o evicting any pod.
 
-***(❓) Does the Preemption occur if the cluster is out of resource ONLY FOR the "evictor pod authorized scheluding zone"?*** 
+This imply that an attacker can **voluntary restrict the zone to deploy higher-priority malicious pods to a single node to trigger the premption process.** Indeed, it is easier to stuff a single node than a whole cluster.
 
-> *For example*, if an attacker can't deploy pod on control-plane nodes ("evictor pod authorized scheluding zone" = data-plane nodes). Data-plane nodes don't have any sufficient resource to schedule the evictor pod **BUT** control-plane nodes have. Does the cluster will evict pods or not to schedule the evictor pod ?
->
-> Yes!
-> This imply that an attacker can **voluntary restrict its "evictor pod authorized scheluding zone" to ease preemption triggering**. (However, preempted pods would be rescheduled out of the "evictor pod authorized scheluding zone" if they have the right)
+However, preempted pods would be rescheduled on other node if they have the right.
 
 ***(❓) Can we change `priorityClass` of pods?*** without having right to directly modify them
 
@@ -197,17 +194,46 @@ To easily see on which node the eviction occurs, you can set the replicas to `6`
 
 ### 🎯 Evict a specific Pod
 
-***(❓) How we can proceed?***
+Basically you can't choose the pod you will evict **BUT** you ccould evict all lower-priority pods including your specific target.
 
-* Deploy  the malicious pod on the same node than the target pod , if you already know on which node the target pod is running
+To do this you need to stuff the node where your target pod is. 2 approaches:
+* You already know the node where the target pod is running
+* You know one label of the target pod
 
-* Deploy malicious pod with inter-pod anti-affinity if you know the target pod label values.
+#### Case 1 - Node stuffing and `PodAffinity`
 
-* In a more sophisticated attack, you could use anti-affinity to deploy higher-prority pods on all nodes where the target pods isn't deployed (to block future rescheduling). Then, evict target pods using node affinity / pod anti afinity to deploy malicious pod
+Assuming we know on which node the target pod is scheduled.
 
-  
+##### Set-up
 
-#### Set-up
+For the PoC we will create a DaemonSet on the `default` namespace of a 5-nodes cluster (our target pod is one of these pods). Then we create a malicious higher-priority pod in another namespace that will trigger the eviction of this specific pod.
+
+1. create the cluster, populate `default` ns, create priorityClass, create `bad-tenant`namespace:
+   * `minikube start --cpus 4 --nodes 5`
+   * `kubectl create ns bad-tenant`
+   * `kubectl apply -f priorityClass-high.yml`
+   * `kubectl -f ds/ds-no-pod-priority.yml`
+2. Watch pods on both namespaces:
+   * `watch -n 0.1 -d kubectl get pods -o wide`
+   * `watch -n 0.1 -d kubectl get pods -o wide -n bad-tenant`
+
+##### Attack
+
+Assuming our target is on node `minikube-m02`. Our aim is know to stuff this specific node. To do so:
+1. Schedule a pod (`scout`) on this node with a specific label (force sheduling with `pod.spec.nodeName`): `kubectl apply -f target/scout.yml`
+2. Create the deployment to stuff the node, to do so add `podAffinity` to your deployment's pod with the `scout` pod: `kubectl apply -f target/deployment-high-affinity.yml`
+3. Scale the deployment progressively till you evict a Pod on `default` ns: `kubectl -n bad-tenant scale deployment.apps/deployment-high-affinity  --replicas=3`, `kubectl -n bad-tenant scale deployment.apps/deployment-high-affinity  --replicas=3`, ...
+
+*Notes:*
+* Why not using `nodeName` for the deployment instead of podaffinity? Cause when you specify `nodeName`, the scheduling process is not hte same and the preemption does not occur (`OutOfCpu` status for your higher-priority pods instead)
+* In a more realistic scenario you wouldn't not see where the eviction happen. To be more realistic approach see [Automation PoC](#-automate-a-bit)
+
+
+#### Case 2 - Cluster stuffing and `AntiPodAffinity`
+
+Assuming we know label of the target pod
+
+##### Set-up
 
 For the PoC we will create pods on the `default` namespace of a 3-nodes cluster (including our target). Then we create a malicious higher-priority pod in another namespace that will trigger the eviction of this specific pod.
 
@@ -224,7 +250,7 @@ The set-up process in nearly the same as the one of the blind DoS section.
    * `watch -n 0.1 -d kubectl get pods -o wide`
    * `watch -n 0.1 -d kubectl get pods -o wide -n bad-tenant`
 
-#### Attack
+##### Attack
 
 Now we have a cluster with stuffed nodes. We want to evict `target` pod of another tenant within another namespace. We have succeed to obtain specific labels of the target pod. We are going to use them with `podAntiffinity`. We will instruct kubernetes to schedule our higher-priority pod on a node where the `target` pod is not.
 
