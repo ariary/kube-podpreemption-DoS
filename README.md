@@ -294,6 +294,7 @@ python3 evict.py --replicas $(python3 estimate-cpu-supply.py && sleep 10)
   * docker cpu limit: (in container) `cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us`divided by `cat /sys/fs/cgroup/cpu/cpu.cfs_period_us` give us the limit number of cpu allocated for the container
   * `kubectl describe nodes [node_name]`
 * Watch pod changement in namespace: `watch -d -n 0.1 -t kubectl get pods -o wide`
+* Scale a deployment: `kubectl scale deployment/[name]  --replicas=3`
 
 ## 👀 Additional Resources
 
