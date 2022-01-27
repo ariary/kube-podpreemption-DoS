@@ -292,12 +292,11 @@ python3 evict.py --replicas $(python3 estimate-cpu-supply.py && sleep 10)
 * You can't specify a `pod.spec.nodeName` in your malicious pod to evict pod of a specific node. It will be scheduled on node with status `OutOfcpu`. (It seems that it Doesn't pass by the kubelet scheduler  so it won't evict lower-priority pods)
   * use of  `pod.spec.nodeSelector` performs lower-priority pods eviction
   * use of  `pod.spec.affinity.nodeAffinity` performs lower-priority pods eviction
-  * use of `pod.spec.affinity.podAffinity` does not perform pods evicition. Malicious pod is pending.
+  * use of `pod.spec.affinity.podAffinity`
+    * does not perform pods evicition if affinity is with a lower-priority pods. Malicious pod is pending.
+    * performs lower-priority pods eviction otherwise
   * use of  `pod.spec.affinity.podAntiAffinity` performs lower-priority pods eviction. (Condition: cpu supply close to be exhausted and match target pod labels with `antiPodAffinity` and `preferredDuringSchedulingIgnoredDuringExecution` + no other pod must have this label. Curiously it will schedule the malicious pod on the same node as the pod specified by antiAffinity)
 * ***(To check again)*** If you want to deploy a deployment of malicious  pods. If all the pods can't be scheduled, an `OutofCpu` status is set and no lower-priority pods are evicted.
-
-
-
 
 ## 🛡 Protection & Mitigation
 
@@ -341,6 +340,4 @@ python3 evict.py --replicas $(python3 estimate-cpu-supply.py && sleep 10)
 
 
 ## To Do
-
-* Determine if the eviction happen if the whole cluster is out of resource or if the cluster is out of resource for the attacker authorized part 
 * try with other resource than cpu
