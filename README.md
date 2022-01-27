@@ -276,7 +276,7 @@ python3 evict.py --replicas $(python3 estimate-cpu-supply.py && sleep 10)
 * Put `ResourceQuota` on each namespaces to limit resource use. Check that the addition of the wholes limits & requests within aren't higher than the overall of the cluster resources
   * In addition, enforce specification of pod resources
   * launch an alert based on limit and requests (if no limit are supplied in resourcequota, resource requests is too big, etc...)
-* Allow `ResourceQuota`, `PodPriority` use only for admin users (generally the same for all cluster wide resources)
+* Allow `ResourceQuota`, `priorityClass` use only for admin users (generally the same for all cluster-wide resources)
 * Add rules via admission controller to prevent specific use of higher PriorityClasses (e.g. disallow `system-node-critical` for non-admin ns)
 * Create Non-preempting PriorityClass (with `preemptionPolicy: Never`) to block preemption by higher priority pods ***~>*** higher-priority pods are placed in the scheduling queue ahead of lower-priority pods, but they cannot preempt other pods. This comes w/ a downside: pods with lower priority could be scheduled before them ([see](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#non-preempting-priority-class))
 
