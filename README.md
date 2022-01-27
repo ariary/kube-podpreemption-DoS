@@ -162,7 +162,7 @@ So, the goal is to trigger an out-of-bound resource with lower pod to estimate t
    * `minikube start --cpus 4 --nodes 3`
    * `kubectl create ns bad-tenant`
    * `kubectl apply -f priorityClass-high.yml`
-2. Populate the cluster with lower-priority pods (to simulate other tenants activities): `kubectl -f ds/ds-no-pod-priority.yml` 
+2. Populate the cluster with lower-priority pods (to simulate other tenants activities): `kubectl apply -f ds/ds-no-pod-priority.yml` 
 3. Watch pods on both namespaces:
    * `watch -n 0.1 -d kubectl get pods -o wide`
    * `watch -n 0.1 -d kubectl get pods -o wide -n bad-tenant`
@@ -212,7 +212,7 @@ For the PoC we will create a DaemonSet on the `default` namespace of a 5-nodes c
    * `minikube start --cpus 4 --nodes 5`
    * `kubectl create ns bad-tenant`
    * `kubectl apply -f priorityClass-high.yml`
-   * `kubectl -f ds/ds-no-pod-priority.yml`
+   * `kubectl apply -f ds/ds-no-pod-priority.yml`
 2. Watch pods on both namespaces:
    * `watch -n 0.1 -d kubectl get pods -o wide`
    * `watch -n 0.1 -d kubectl get pods -o wide -n bad-tenant`
@@ -243,7 +243,7 @@ The set-up process in nearly the same as the one of the blind DoS section.
    * `minikube start --cpus 4 --nodes 3`
    * `kubectl create ns bad-tenant`
    * `kubectl apply -f priorityClass-high.yml`
-   * `kubectl -f ds/ds-no-pod-priority.yml`
+   * `kubectl apply -f ds/ds-no-pod-priority.yml`
 2. Create the target pod (no priorityClass + specific label): `kubectl apply -f target/target-pod.yml`
 3. Determine the number of higher-priority pods to create to stuff nodes (see [Blind DoS](#-Blind-DoS)). Create consequently deployment of higher-priority pods with the adequat `replica` value: `kubectl apply -f target/deployment-high.yml && kubectl -n bad-tenant scale deployment/deployment-high-priority  --replicas=5`
 4. Watch pods on both namespaces:
