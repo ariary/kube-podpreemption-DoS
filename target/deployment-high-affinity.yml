@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-high-affinity
+  namespace: bad-tenant
+spec:
+  selector:
+    matchLabels:
+      app: deployment-high-affinity
+  template:
+    metadata:
+      labels:
+        app: deployment-high-affinity
+    spec:
+      containers:
+      - name: high-priority
+        image: nginxdemos/hello
+        imagePullPolicy: IfNotPresent        
+        resources:
+          requests:
+            cpu: 1
+            memory: 128Mi
+          limits:
+            cpu: 1
+            memory: 128Mi
+      priorityClassName: high-priority
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - scout #match our scout pod
+            topologyKey: kubernetes.io/hostname # neutral node label (targeting all nodes, in case we don't know nodes labels)
+     
