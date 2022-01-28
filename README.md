@@ -291,7 +291,7 @@ python3 evict.py --replicas $(python3 estimate-cpu-supply.py && sleep 10)
 * In the case of memory pressure, **pods are sorted first based on whether  their memory usage exceeds their request or not**, then by pod priority,  and then by consumption of memory relative to memory requests
 * `OutOfCPu` can occurs for higher-priority pod (especially from `deployment`) even if lower-priority pods are running. It is because the **named node** where you higher-priority pods specify the scheduling  does not have the resources to accommodate the pod => pod fail. **This is why you can't specify a `pod.spec.nodeName` in your malicious pod to evict pod of a specific node.**
   * This not apply to `pod.spec.nodeSelector`, `pod.spec.affinity.nodeAffinity` ,  `pod.spec.affinity.podAffinity` and `pod.spec.affinity.podAntiAffinity` (as it does not named a node). You can use them to perform lower-priority pod eviction on targeted node.
-  * Nethertheless, you can't use `pod.spec.affinity.podAffinity` with affinity with a pod you aim to evict => high-priority pod will stay pending
+  * Nethertheless, you can't use `pod.spec.affinity.podAffinity` with affinity with a pod you aim to evict => high-priority pod will stay pending. [see](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#inter-pod-affinity-on-lower-priority-pods)
   * With `pod.spec.affinity.podAntiAffinity` use  `preferredDuringSchedulingIgnoredDuringExecution`
 
 ## 🛡 Protection & Mitigation
