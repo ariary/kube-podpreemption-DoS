@@ -194,7 +194,7 @@ To easily see on which node the eviction occurs, you can set the replicas to `6`
 
 ### 🎯 Evict a specific Pod
 
-Basically you can't choose the pod you will evict **BUT** you ccould evict all lower-priority pods including your specific target.
+Basically you can't choose the pod you will evict **BUT** you could evict all lower-priority pods including your specific target.
 
 To do this you need to stuff the node where your target pod is. 2 approaches:
 * You already know the node where the target pod is running
