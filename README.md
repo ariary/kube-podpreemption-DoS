@@ -202,7 +202,7 @@ To do this you need to stuff the node where your target pod is. 2 approaches:
 
 #### Case 1 - Node stuffing and `PodAffinity`
 
-Assuming we know on which node the target pod is scheduled.
+*> Assuming we know on which node the target pod is scheduled.*
 
 ##### Set-up
 
@@ -233,7 +233,7 @@ You have evicted the target pod on `minikube-m02`!
 
 #### Case 2 - Cluster stuffing and `AntiPodAffinity`
 
-Assuming we know label of the target pod
+*> Assuming we know label of the target pod*
 
 ##### Set-up
 
