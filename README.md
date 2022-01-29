@@ -1,15 +1,24 @@
 # Pod Denial-of-Service using Pod Priority preemption
 
+## TL;DR
+
+* The issue concerns **multi-tenant** kubernetes cluster
+* **Default kubernetes configuration** is affected
+* A malicous tenant can create a pod that **could preempt any pod on the cluster**
+
 The aim is to demonstate how we could perform the Denial-of-Service of another pod in the same kubernetes cluster using `PodPriority`.
 
 By DoS we mean:
 **Pod eviction, if the target pod is already running** and **Block pod rescheduling**
 
-It is mainly harmful in a multi-tenant cluster. A malicious tenant can use this mechanism to perform a DoS on other tenant applications or even on "administrative" pods
+|Impact|Complexity|
+|----|----|
+|DoS of other tenant application|Easy/Intermediate|
 
 <div align=center>
   <h3><a href="#%EF%B8%8F-demo">>> Demo 🖥️ <<</a></h3>
 </div>
+
 
 - [📚 Theory](#-theory)
 - [🔫 PoC](#-poc)
