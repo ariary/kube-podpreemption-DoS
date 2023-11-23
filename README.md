@@ -280,7 +280,7 @@ pip install kubernetes
 
 To find **how many replicas you need to create to stuff the cluster** and thus being near a Cluster Out-of-Cpu state:
 ```shell
-python3 -n bad-tenant --cpu 1 --increment 1 --replicas 2 --timeout 10 estimate-cpu-supply.py
+python3  estimate-cpu-supply.py -n bad-tenant --cpu 1 --increment 1 --replicas 2 --timeout 10 
 ```
 It will output the number of replica needed for this purpose.
 
